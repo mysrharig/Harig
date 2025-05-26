@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Harig Game</title>
+  <style>
+    body {
+      margin: 0;
+      background: #0b0c10;
+      font-family: Arial, sans-serif;
+      color: white;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 10px;
+    }
+    h1 {
+      margin-top: 10px;
+      color: #66fcf1;
+    }
+    #playerHand, #opponentHand, #deck, #discardPile {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 8px;
+      margin: 10px;
+    }
+    .card {
+      width: 60px;
+      height: 90px;
+      background-size: cover;
+      background-position: center;
+      border-radius: 5px;
+      cursor: grab;
+      box-shadow: 0 2px 8px #0008;
+      border: 2px solid #222;
+      transition: transform 0.1s;
+    }
+    .card:active {
+      transform: scale(1.05);
+    }
+    .back {
+      background-image: url('https://upload.wikimedia.org/wikipedia/commons/thumb/5/54/Card_back_01.svg/120px-Card_back_01.svg.png');
+    }
+    #deckZone {
+      display: flex;
+      gap: 20px;
+      margin: 20px;
+    }
+    #dropZone {
+      border: 2px dashed #66fcf1;
+      width: 120px;
+      height: 100px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 10px;
+      color: #ccc;
+      font-size: 14px;
+      background: #1f232a;
+      min-width: 60px;
+      min-height: 90px;
+      transition: background 0.2s;
+    }
+    #dropZone.dragover {
+      background: #252b36;
+    }
+  </style>
+</head>
+<body>
+  <h1>Harig Game</h1>
+  <div id="opponentHand"></div>
+  <div id="deckZone">
+    <div id="deck" class="card back" onclick="drawCard()" title="اسحب ورقة"></div>
+    <div id="dropZone">Drop a card here</div>
+  </div>
+  <div id="playerHand"></div>
+  <script>
+    // تعريف الرموز والقيم
+    const suits = ['C', 'D', 'H', 'S']; // Clubs, Diamonds, Hearts, Spades
+    const values = ['A','2','3','4','5','6','7','8','9','10','J','Q','K'];
+
+    // تعديل اسم الصورة إذا كان الرقم 10 (deckofcardsapi يستخدم 0 بدل 10)
+    function createCardImage(value, suit) {
+      const v = value === "10" ? "0" : value;
+      return `https://deckofcardsapi.com/static/img/${v}${suit}.png`;
+    }
+    function createCardElement(src) {
+      const card = document.createElement('div');
+      card.className = 'card';
+      card.style.backgroundImage = `url(${src})`;
+      card.draggable = true;
+      card.ondragstart = (e) => {
+        e.dataTransfer.setData('text/plain', src);
+      };
+      return card;
+    }
+    function drawCard() {
+      const value = values[Math.floor(Math.random() * values.length)];
+      const suit = suits[Math.floor(Math.random() * suits.length)];
+      const src = createCardImage(value, suit);
+      const card = createCardElement(src);
+      document.getElementById('playerHand').appendChild(card);
+    }
+    // يد الخصم (كروت خلفية)
+    for (let i = 0; i < 14; i++) {
+      const card = document.createElement('div');
+      card.className = 'card back';
+      document.getElementById('opponentHand').appendChild(card);
+    }
+    // منطقة الإسقاط
+    const dropZone = document.getElementById('dropZone');
+    dropZone.ondragover = (e) => {
+      e.preventDefault();
+      dropZone.classList.add("dragover");
+    };
+    dropZone.ondragleave = () => {
+      dropZone.classList.remove("dragover");
+    };
+    dropZone.ondrop = (e) => {
+      e.preventDefault();
+      dropZone.classList.remove("dragover");
+      const src = e.dataTransfer.getData('text/plain');
+      const card = createCardElement(src);
+      dropZone.innerHTML = '';
+      dropZone.appendChild(card);
+    };
+  </script>
+</body>
+  </html>
